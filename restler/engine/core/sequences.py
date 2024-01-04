@@ -389,7 +389,7 @@ class Sequence(object):
             for i in range(len(self.requests) - 1):
                 last_tested_request_idx = i
                 prev_request = self.requests[i]
-                prev_rendered_data, prev_parser, tracked_parameters, updated_writer_variables =\
+                prev_rendered_data, prev_parser, tracked_parameters, updated_writer_variables, replay_blocks =\
                     prev_request.render_current(candidate_values_pool,
                     preprocessing=preprocessing, use_last_cached_rendering=True)
 
@@ -404,7 +404,8 @@ class Sequence(object):
                 prev_producer_timing_delay = Settings().get_producer_timing_delay(prev_request.request_id)
 
                 SequenceTracker.initialize_request_trace(combination_id=self.combination_id,
-                                                         request_id=request.hex_definition)
+                                                         request_id=request.hex_definition,
+                                                         replay_blocks=replay_blocks)
 
                 prev_response = request_utilities.send_request_data(prev_rendered_data)
                 if prev_response.has_valid_code():
@@ -521,7 +522,7 @@ class Sequence(object):
         datetime_format = "%Y-%m-%d %H:%M:%S"
         response_datetime_str = None
         timestamp_micro = None
-        for rendered_data, parser, tracked_parameters, updated_writer_variables in\
+        for rendered_data, parser, tracked_parameters, updated_writer_variables, replay_blocks in\
                 request.render_iter(candidate_values_pool,
                                     skip=request._current_combination_id,
                                     preprocessing=preprocessing):
@@ -580,7 +581,8 @@ class Sequence(object):
             req_async_wait = Settings().get_max_async_resource_creation_time(request.request_id)
             req_producer_timing_delay = Settings().get_producer_timing_delay(request.request_id)
             SequenceTracker.initialize_request_trace(combination_id=self.combination_id,
-                                                     request_id=request.hex_definition)
+                                                     request_id=request.hex_definition,
+                                                     replay_blocks=replay_blocks)
 
             response = request_utilities.send_request_data(rendered_data)
             if response.has_valid_code():
