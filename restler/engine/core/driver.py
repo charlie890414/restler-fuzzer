@@ -233,7 +233,7 @@ def render_one(seq_to_render, ith, checkers, generation, global_lock, garbage_co
             break
 
         # If in smoke test mode, log the spec coverage for the invalid rendering.
-        if Settings().in_smoke_test_mode() and (not Settings().in_scenario_replay_mode()) and\
+        if Settings().in_smoke_test_mode() and \
                 current_seq.last_request._current_combination_id < Settings().max_logged_request_combinations:
             renderings.sequence.last_request.stats.set_all_stats(renderings)
             logger.print_request_coverage(rendered_sequence=renderings, log_rendered_hash=True)
@@ -403,8 +403,9 @@ def render_with_cache(seq_collection, fuzzing_pool, checkers, generation, global
                     current_seq.last_request.stats.valid = 0
                     current_seq.last_request.stats.invalid_due_to_sequence_failure = 1
                     current_seq.last_request.stats.set_matching_prefix(failed_prefix=first_found)
-                    logger.print_request_coverage(request=current_seq.last_request,
-                                                  log_rendered_hash=False)
+                    if Settings().in_smoke_test_mode():
+                        logger.print_request_coverage(request=current_seq.last_request,
+                                                    log_rendered_hash=False)
 
                     # Print information about the attempt to render this request to main.txt
                     print_rendering_to_main_txt(current_seq)

@@ -1010,8 +1010,9 @@ class RestlerSettings(object):
         @return: True if we are running a smoke test
 
         """
-        return self._fuzzing_mode.val == 'directed-smoke-test' or \
-               self._fuzzing_mode.val == 'test-all-combinations'
+        return (self._fuzzing_mode.val == 'directed-smoke-test' or \
+                self._fuzzing_mode.val == 'test-all-combinations') and \
+               (not self.in_scenario_replay_mode())
 
     def in_scenario_replay_mode(self) -> bool:
         """ Returns whether or not this run is replaying specific scenarios
