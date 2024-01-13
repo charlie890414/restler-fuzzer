@@ -483,6 +483,16 @@ class Request(object):
 
         return endpoint_string
 
+
+    @property
+    def basepath(self):
+        """ Returns the Request's basepath
+
+        @return: The Request's basepath
+        @rtype : Str
+        """
+        return self._definition[1][1]
+
     @property
     def examples(self) -> RequestExamples:
         """ Returns the Request's examples

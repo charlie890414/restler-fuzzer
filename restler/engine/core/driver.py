@@ -588,6 +588,10 @@ def find_request_id(definition_blocks, fuzzing_requests):
         return path_without_query, method
 
     path_only, method = extract_http_path_and_method(definition_blocks)
+    # remove the basepath from the path
+    # TODO: test with different base paths during the recording vs. replay
+    # The code below assumes the basepath at time of the recording is the same as the current basepath
+    #
     definition_parts = path_only.split("/")
     # For each request ID in 'fuzzing_requests', split it into parts.
     # Walk the parts to find the matching request ID
@@ -596,7 +600,12 @@ def find_request_id(definition_blocks, fuzzing_requests):
             continue
         if fuzzing_request.endpoint_no_dynamic_objects is None:
             continue
+
         request_id_parts = fuzzing_request.endpoint_no_dynamic_objects.split("/")
+        request_basepath = fuzzing_request.basepath
+        if path_only.startswith(request_basepath):
+            path_only = path_only[len(request_basepath):]
+
         if len(request_id_parts) != len(definition_parts):
             continue
 
