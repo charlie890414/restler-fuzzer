@@ -605,6 +605,7 @@ def find_request_id(definition_blocks, fuzzing_requests):
         request_basepath = fuzzing_request.basepath
         if path_only.startswith(request_basepath):
             path_only = path_only[len(request_basepath):]
+            definition_parts = path_only.split("/")
 
         if len(request_id_parts) != len(definition_parts):
             continue
