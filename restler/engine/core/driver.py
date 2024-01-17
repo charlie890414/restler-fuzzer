@@ -251,7 +251,11 @@ def render_one(seq_to_render, ith, checkers, generation, global_lock, garbage_co
 
     # for random-walk and cheap fuzzing, one valid rendering is enough.
     # for directed smoke test mode, only a single valid rendering is needed.
-    if Settings().fuzzing_mode in ['random-walk',  'bfs-cheap', 'bfs-minimal', 'directed-smoke-test']:
+    # For scenario replay mode, only the first rendering should be used
+    if Settings().fuzzing_mode in ['random-walk',
+                                   'bfs-cheap',
+                                   'bfs-minimal',
+                                   'directed-smoke-test'] or Settings().in_scenario_replay_mode():
         if renderings.valid:
             valid_renderings.append(renderings.sequence)
 
@@ -714,7 +718,6 @@ def generate_sequences(fuzzing_requests, checkers, fuzzing_jobs=1, garbage_colle
                 for definition_block_data in seq:
                     request_in_collection = find_request_id(definition_block_data['request_text'], fuzzing_requests)
                     req_copy = copy.copy(request_in_collection)
-
                     if 'request_blocks' in definition_block_data:
                         req_copy._definition = definition_block_data['request_blocks']
                     else:
@@ -791,12 +794,12 @@ def generate_sequences(fuzzing_requests, checkers, fuzzing_jobs=1, garbage_colle
             try:
                 seq_collection_exhausted = False
 
-                if seq_constraints_by_generation[generation]:
+                if not Settings().in_scenario_replay_mode() and seq_constraints_by_generation[generation]:
                     # This assignment of seq_collection is performed only for logging purposes.
                     # It will get reset on the next loop iteration.
                     seq_collection = render_with_cache(seq_collection, fuzzing_pool, checkers,
-                                                       generation, global_lock, seq_rendering_cache,
-                                                       garbage_collector)
+                                                    generation, global_lock, seq_rendering_cache,
+                                                    garbage_collector)
                 else:
                     seq_collection = render(seq_collection, fuzzing_pool, checkers, generation, global_lock,
                                             garbage_collector)

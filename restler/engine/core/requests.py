@@ -1121,7 +1121,7 @@ class Request(object):
         schema_idx = -1
         if Settings().in_scenario_replay_mode():
             # Just testing the grammar.py schema with replayed payloads, example payloads are not applicable
-            schema_combinations = itertools.islice([(self, False)], Settings().max_schema_combinations)
+            schema_combinations = [(self, False)]
         else:
             schema_combinations = itertools.islice(self.get_schema_combinations(
                                                         use_grammar_py_schema=Settings().allow_grammar_py_user_update),
