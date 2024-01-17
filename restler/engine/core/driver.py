@@ -766,7 +766,7 @@ def generate_sequences(fuzzing_requests, checkers, fuzzing_jobs=1, garbage_colle
             fuzzing_mode = fuzzing_schedule[length]
 
             # extend sequences with new request templates
-            if seq_constraints_by_generation[generation]:
+            if specific_target_sequences is not None and seq_constraints_by_generation[generation]:
                 # Only execute the sequences specified for this generation
                 seq_collection = []
                 extended_requests=[]
@@ -794,7 +794,8 @@ def generate_sequences(fuzzing_requests, checkers, fuzzing_jobs=1, garbage_colle
             try:
                 seq_collection_exhausted = False
 
-                if not Settings().in_scenario_replay_mode() and seq_constraints_by_generation[generation]:
+                if not Settings().in_scenario_replay_mode() and specific_target_sequences is not None and \
+                    seq_constraints_by_generation[generation]:
                     # This assignment of seq_collection is performed only for logging purposes.
                     # It will get reset on the next loop iteration.
                     seq_collection = render_with_cache(seq_collection, fuzzing_pool, checkers,
