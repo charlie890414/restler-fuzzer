@@ -77,10 +77,10 @@ class InvalidDynamicObjectChecker(CheckerBase):
             request_utilities.call_response_parser(last_request_parser, response)
             if response and self._rule_violation(new_seq, response):
                 # Append the data that we just sent to the sequence's sent list
-                new_seq.append_data_to_sent_list(data, last_request_parser, response)
+                new_seq.append_data_to_sent_list(last_request.method_endpoint_hex_definition,
+                                                 data, last_request_parser, response, replay_blocks=replay_blocks)
                 BugBuckets.Instance().update_bug_buckets(new_seq, response.status_code, origin=self.__class__.__name__)
                 self._print_suspect_sequence(new_seq, response)
-
 
 
     def _prepare_invalid_requests(self, data):

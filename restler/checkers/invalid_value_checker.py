@@ -245,7 +245,7 @@ class InvalidValueChecker(CheckerBase):
         # Add the sent prefix requests for replay
         checked_seq.set_sent_requests_for_replay(new_seq.sent_request_data_list)
         # Create a placeholder sent data, so it can be replaced below when bugs are detected for replays
-        checked_seq.append_data_to_sent_list("GET /", None,  HttpResponse(), max_async_wait_time=req_async_wait)
+        checked_seq.append_data_to_sent_list("-", "GET /", None,  HttpResponse(), max_async_wait_time=req_async_wait)
 
         # Render the current request combination, but get the list of primitive
         # values before they are concatenated.
@@ -339,7 +339,10 @@ class InvalidValueChecker(CheckerBase):
                     status_code = response.status_code
 
                     if response and self._rule_violation(checked_seq, response, valid_response_is_violation=False):
-                        checked_seq.replace_last_sent_request_data(rendered_data, parser, response, max_async_wait_time=req_async_wait)
+                        checked_seq.replace_last_sent_request_data(last_request.method_endpoint_hex_definition,
+                                                                   rendered_data, parser, response,
+                                                                   max_async_wait_time=req_async_wait,
+                                                                   replay_blocks=replay_blocks)
                         self._print_suspect_sequence(checked_seq, response)
                         BugBuckets.Instance().update_bug_buckets(checked_seq, response.status_code, origin=self.__class__.__name__)
 

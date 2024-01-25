@@ -150,6 +150,8 @@ def apply_checkers(checkers, renderings, global_lock):
         try:
             if checker.enabled:
                 RAW_LOGGING(f"Checker: {checker.__class__.__name__} kicks in\n")
+                # Clear the sequence trace since each checker will have its own sequence trace
+                SequenceTracker.clear_sequence_trace()
                 SequenceTracker.set_origin(checker.__class__.__name__)
                 checker.apply(renderings, global_lock)
                 RAW_LOGGING(f"Checker: {checker.__class__.__name__} kicks out\n")
@@ -916,7 +918,7 @@ def replay_sequence_from_log(replay_log_filename, token_refresh_cmd):
 
                 # Append the request data to the list
                 # None is for the parser, which does not currently run during replays.
-                send_data.append(sequences.SentRequestData(line, None))
+                send_data.append(sequences.SentRequestData("-", line, None))
             elif line.startswith(logger.BUG_LOG_NOTIFICATION_ICON):
                 line = line.lstrip(logger.BUG_LOG_NOTIFICATION_ICON)
                 if line.startswith('producer_timing_delay'):

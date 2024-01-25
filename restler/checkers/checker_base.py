@@ -143,7 +143,10 @@ class CheckerBase:
             responses_to_parse, _, _ = async_request_utilities.try_async_poll(
                 rendered_data, response, async_wait)
         request_utilities.call_response_parser(parser, None, responses=responses_to_parse)
-        seq.append_data_to_sent_list(rendered_data, parser, response, producer_timing_delay=0, max_async_wait_time=async_wait)
+        seq.append_data_to_sent_list(request.method_endpoint_hex_definition,
+                                     rendered_data, parser, response, producer_timing_delay=0,
+                                     max_async_wait_time=async_wait,
+                                     replay_blocks=replay_blocks)
         SequenceTracker.clear_sequence_trace()
         return response, response_to_parse
 

@@ -1230,7 +1230,8 @@ class PayloadBodyChecker(CheckerBase):
             # analyze response -- error
             if self._rule_violation(seq, response, valid_is_violation):
                 # Append the new request to the sequence before filing the bug
-                seq.replace_last_sent_request_data(rendered_data, parser, response)
+                seq.replace_last_sent_request_data(request.method_endpoint_hex_definition,
+                                                   rendered_data, parser, response)
                 err_seq = sequences.Sequence(seq.requests[:-1] + [new_request])
                 err_seq.set_sent_requests_for_replay(seq.sent_request_data_list)
                 self._print_suspect_sequence(err_seq, response)
