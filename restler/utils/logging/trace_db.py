@@ -109,12 +109,12 @@ class SequenceTracker:
             return None
         return trace['origin']
 
-def get_sequences_from_db(db_file_path, origin_filter='main_driver'):
+def get_sequences_from_db(db_file_path, include_origins=None):
     """Gets the sequences from the trace database.
     @param db_file_path: The path to the trace database.
     @type  db_file_path: String
-    @param origin_filter: The origin to filter by.  If None, no filtering is done.
-    @type  origin_filter: String
+    @param include_origins: The list of origin values to include.  If None, no filtering is done.
+    @type  include_origins: List
 
     @return: The sequences from the trace database.  Each sequence contains a list of requests.  Each request is
                 a dictionary containing the request text and replay blocks, if available.
@@ -128,7 +128,7 @@ def get_sequences_from_db(db_file_path, origin_filter='main_driver'):
     # First, collect the requests by sequence ID.  For a particular origin, they should not be interleaved.
     for i, x in enumerate(trace_messages):
         if x.request is not None:
-            if origin_filter is not None and x.origin != origin_filter:
+            if include_origins is not None and x.origin not in include_origins:
                 continue
             if current_sequence_id is None:
                 current_sequence_id = x.sequence_id

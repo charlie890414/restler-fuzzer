@@ -714,7 +714,8 @@ def generate_sequences(fuzzing_requests, checkers, fuzzing_jobs=1, garbage_colle
 
         if Settings().in_scenario_replay_mode():
             specific_target_sequences = []
-            request_block_sequences = get_sequences_from_db(Settings().trace_db_replay_file)
+            request_block_sequences = get_sequences_from_db(Settings().trace_db_replay_file,
+                                                            Settings().trace_db_replay_include_origins)
             for seq in request_block_sequences:
                 req_list = []
                 for definition_block_data in seq:

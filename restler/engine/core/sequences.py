@@ -415,10 +415,6 @@ class Sequence(object):
                                       producer_timing_delay, req_async_wait, replay_blocks=replay_blocks)
         SequenceTracker.clear_request_trace(combination_id=self.combination_id)
 
-        if response.has_bug_code():
-            BugBuckets.Instance().update_bug_buckets(
-                self, response.status_code, reproduce=False, lock=lock)
-
         timing_delay = producer_timing_delay if request.is_resource_generator() else 0
 
         return response, resource_error, parser_threw_exception, timing_delay, response_datetime_str, timestamp_micro
@@ -490,6 +486,10 @@ class Sequence(object):
                     self.send_rendered_request(prev_request, prev_rendered_data, prev_parser, tracked_parameters,
                                                updated_writer_variables, replay_blocks,
                                                lock)
+
+                if prev_response.has_bug_code():
+                    BugBuckets.Instance().update_bug_buckets(
+                        self, prev_response.status_code, reproduce=False, lock=lock)
 
                 # register latest client/server interaction
                 self.status_codes.append(status_codes_monitor.RequestExecutionStatus(timestamp_micro,
@@ -628,7 +628,10 @@ class Sequence(object):
             # for the last request
             response, resource_error, parser_exception_occurred, timing_delay, response_datetime_str, timestamp_micro = \
                 self.send_rendered_request(request, rendered_data, parser, tracked_parameters,
-                                            updated_writer_variables, replay_blocks, lock)
+                                           updated_writer_variables, replay_blocks, lock)
+            if response.has_bug_code():
+                BugBuckets.Instance().update_bug_buckets(
+                    self, prev_response.status_code, lock=lock)
 
             # register latest client/server interaction
             self.status_codes.append(status_codes_monitor.RequestExecutionStatus(timestamp_micro,
@@ -822,6 +825,7 @@ class Sequence(object):
                 response, resource_error, parser_exception_occurred, timing_delay, response_datetime_str, timestamp_micro = \
                     self.send_rendered_request(req_copy, rendered_data, parser, tracked_parameters,
                                                updated_writer_variables, replay_blocks, lock=None)
+
                 # In replay mode, even if requests in the sequence prefix fail, replay the entire sequence
                 # Therefore, do not check for failure here and move to the next request
             else:

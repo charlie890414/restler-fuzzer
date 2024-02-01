@@ -422,7 +422,7 @@ class RestlerSettings(object):
         self._replay_settings = SettingsArg('replay', dict, {}, user_args)
         # The command line replay database overrides the one specified in the settings file
         if 'replay_log' in user_args:
-            self._replay_settings.set_val({'trace_database_file_path': user_args['replay_log']})
+            self._replay_settings.val['trace_database_file_path'] = user_args['replay_log']
 
         ## Length of time the garbage collector will attempt to cleanup remaining resources at the end of fuzzing (seconds)
         self._garbage_collector_cleanup_time = SettingsArg('garbage_collector_cleanup_time', int, MAX_GC_CLEANUP_TIME_SECONDS_DEFAULT, user_args, minval=0)
@@ -631,6 +631,15 @@ class RestlerSettings(object):
     @property
     def trace_db_replay_file(self):
         return self._replay_settings.val.get('trace_database_file_path')
+
+    @property
+    def trace_db_replay_include_origins(self):
+        if 'include_origins' in self._replay_settings.val:
+            include_origins = self._replay_settings.val['include_origins']
+            if not isinstance(include_origins, list):
+                raise ValueError("Invalid value for 'include_origins'. It should be a list.")
+            return include_origins
+        return None
 
     @property
     def trace_db_root_dir(self):
