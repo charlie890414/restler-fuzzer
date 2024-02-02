@@ -487,10 +487,6 @@ class Sequence(object):
                                                updated_writer_variables, replay_blocks,
                                                lock)
 
-                if prev_response.has_bug_code():
-                    BugBuckets.Instance().update_bug_buckets(
-                        self, prev_response.status_code, reproduce=False, lock=lock)
-
                 # register latest client/server interaction
                 self.status_codes.append(status_codes_monitor.RequestExecutionStatus(timestamp_micro,
                                                                                      request.hex_definition,
@@ -504,6 +500,9 @@ class Sequence(object):
                     break
 
                 if prev_response.has_bug_code():
+                    BugBuckets.Instance().update_bug_buckets(
+                        self, prev_response.status_code, reproduce=True, lock=lock)
+
                     sequence_failed = True
                     break
 
@@ -631,7 +630,7 @@ class Sequence(object):
                                            updated_writer_variables, replay_blocks, lock)
             if response.has_bug_code():
                 BugBuckets.Instance().update_bug_buckets(
-                    self, prev_response.status_code, lock=lock)
+                    self, response.status_code, lock=lock)
 
             # register latest client/server interaction
             self.status_codes.append(status_codes_monitor.RequestExecutionStatus(timestamp_micro,
@@ -811,6 +810,8 @@ class Sequence(object):
                 # Construct the request in the same way as during replay, and set the replay blocks
                 # so they are written to the database
                 req_copy = copy.copy(request_in_collection)
+                # The first combination of the replay blocks must be rendered
+                req_copy._current_combination_id = 0
                 req_copy._definition = copy.copy(request_data.replay_blocks)
 
                 # Add the parser to make sure GC works
@@ -819,8 +820,10 @@ class Sequence(object):
                     req_copy._definition.append(metadata)
 
                 # render the request
+                # Note: use_last_cached_rendering MUST be set to false here, since the replay blocks
+                # contain different values than the cached rendering
                 rendered_data, parser, tracked_parameters, updated_writer_variables, replay_blocks =\
-                    req_copy.render_current(candidate_values_pool, preprocessing=False, use_last_cached_rendering=True)
+                    req_copy.render_current(candidate_values_pool, preprocessing=False, use_last_cached_rendering=False)
 
                 response, resource_error, parser_exception_occurred, timing_delay, response_datetime_str, timestamp_micro = \
                     self.send_rendered_request(req_copy, rendered_data, parser, tracked_parameters,
