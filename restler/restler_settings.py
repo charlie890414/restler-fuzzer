@@ -29,7 +29,7 @@ class OptionValidationError(Exception):
     pass
 
 class ConnectionSettings(object):
-    def __init__(self, target_ip, target_port, use_ssl=True, include_user_agent=False, disable_cert_validation=False,
+    def __init__(self, target_ip, target_port, use_ssl=True, include_user_agent=False, disable_cert_validation=False, use_http2=False,
                  user_agent=None, include_unique_sequence_id=False):
         """ Initializes an object that contains the connection settings for the socket
         @param target_ip: The ip of the target service.
@@ -44,6 +44,8 @@ class ConnectionSettings(object):
         @type  user_agent: Str
         @param disable_cert_validation: Whether or not to disable SSL certificate validation
         @type  disable_cert_validation: Bool
+        @param use_http2: Whether or not to use HTTP2 for connection
+        @type use_http2: Boolean
 
         @return: None
         @rtype : None
@@ -56,6 +58,7 @@ class ConnectionSettings(object):
         self.user_agent = user_agent
         self.include_unique_sequence_id = include_unique_sequence_id
         self.disable_cert_validation = disable_cert_validation
+        self.use_http2  = use_http2
 
 class SettingsArg(object):
     """ Holds a setting's information """
@@ -463,6 +466,8 @@ class RestlerSettings(object):
         self._max_sequence_length = SettingsArg('max_sequence_length', int, MAX_SEQUENCE_LENGTH_DEFAULT, user_args, minval=0)
         ## Do not use SSL validation
         self._no_ssl = SettingsArg('no_ssl', bool, False, user_args)
+        ## Use HTTP2
+        self._use_http2 = SettingsArg('http2', bool, False, user_args)
         ## Do not print auth token data in logs
         self._no_tokens_in_logs = SettingsArg('no_tokens_in_logs', bool, True, user_args)
         ## Save the results in a dir with a fixed name (skip 'experiment<pid>' subdir)
@@ -531,7 +536,8 @@ class RestlerSettings(object):
                                                        self._include_user_agent.val,
                                                        self._disable_cert_validation.val,
                                                        self._user_agent.val,
-                                                       self._include_unique_sequence_id.val)
+                                                       self._include_unique_sequence_id.val,
+                                                       self._use_http2.val)
 
         # Set per resource arguments
         if 'per_resource_settings' in user_args:
@@ -796,6 +802,10 @@ class RestlerSettings(object):
     @property
     def test_server(self):
         return self._test_server.val
+
+    @property
+    def use_http2(self):
+        return self._use_http2.val
 
     @property
     def time_budget(self):
