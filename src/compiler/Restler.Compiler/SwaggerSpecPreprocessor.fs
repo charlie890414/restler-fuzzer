@@ -79,15 +79,18 @@ module EscapeCharacters =
     let inline replaceSwaggerEscapeCharacters (path:string) =
         path.Replace("~1", "/")
             .Replace("~0", "~")
+            .Replace("%7B", "{")
+            .Replace("%7D", "}")
 
     let inline containsSwaggerEscapeCharacters (path:string) =
-        ["~1" ; "~0"] |> Seq.exists (fun x -> path.Contains(x))
+        ["~1" ; "~0" ; "%7B" ; "%7D"] |> Seq.exists (fun x -> path.Contains(x))
 
     let refRegex = Regex("(?<![/])/")
 
     let getRefParts refPath =
-        let r = replaceSwaggerEscapeCharacters refPath
-        refRegex.Split(r) |> Array.skip 1
+        let parts = refRegex.Split(refPath) |> Array.skip 1
+        // apply replaceSwaggerEscapeCharacters to each part
+        parts |> Array.map replaceSwaggerEscapeCharacters
 
 /// Find the object at 'refPath' in the specified file.
 let getObjInFile filePath (refPath:string) (jsonSpecs:Dictionary<string, JObject>) =

@@ -208,7 +208,9 @@ let generatePythonParameter includeOptionalParameters parameterSource parameterK
             ]
 
     let formatQueryObjectParameters (parameterName:string) (innerProperties:RequestPrimitiveType list seq) =
-        raise (NotImplementedException("Objects in query parameters are not supported yet."))
+        // raise (NotImplementedException("Objects in query parameters are not supported yet."))
+        // try to use formatJsonBodyParameter to format the query object
+        formatJsonBodyParameter parameterName Object None innerProperties 0
 
     let formatHeaderObjectParameters (parameterName:string) (innerProperties:RequestPrimitiveType list seq) =
         // The default is "style: simple, explode: false"
