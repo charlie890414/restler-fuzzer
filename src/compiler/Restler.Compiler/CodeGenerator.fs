@@ -1075,9 +1075,11 @@ let getRequests(requests:Request list) includeOptionalParameters =
                 if isNull str then
                     sprintf ", examples=[None]"
                 else
-                    let exStr, exDelim = quoteStringForPythonGrammar str
-                    let quotedStr = sprintf "%s%s%s" exDelim exStr exDelim
-                    sprintf ", examples=[%s]" quotedStr
+                    // change to all list example
+                    // let exStr, exDelim = quoteStringForPythonGrammar str
+                    // let quotedStr = sprintf "%s%s%s" exDelim exStr exDelim
+                    // sprintf ", examples=[%s]" quotedStr
+                    sprintf ", examples=%s" str
 
         let getTrackedParamPrimitiveParameter paramName =
             match paramName with
